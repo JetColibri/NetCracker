@@ -1,9 +1,9 @@
-package com.netcracker.superproject.dao.entity.attributes;
+package com.netcracker.superproject.entity.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ObjectType {
+public @interface Attribute {
     String type();
 }
