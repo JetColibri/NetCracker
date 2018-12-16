@@ -59,12 +59,7 @@ public class EntityManager <T extends BaseEntity> {
     //temporarily only for "User"
     public User read(BigInteger id) {
         Map<String, Object> fields = new HashMap<>();
-        try {
-            con = DriverManager.getConnection(url, user, password);
-            stmt = con.createStatement();
-        } catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
-        }
+        connect();
         try {
             ResultSet rs = stmt.executeQuery("SELECT * FROM value WHERE entity_id = '" + id + "'");
             while (rs.next()) {
@@ -78,15 +73,24 @@ public class EntityManager <T extends BaseEntity> {
         return setAllFields(fields);
     }
 
+    //temporarily only for "User"
+    public BigInteger getIdByParam(String param, String value) {
+        BigInteger id = null;
+        Map<String, Object> fields = new HashMap<>();
+        connect();
+        try {
+        ResultSet rs = stmt.executeQuery("SELECT entity_id FROM value WHERE  = '" + param + "' AND value = '" + value + "'");
+        id = BigInteger.valueOf(rs.getInt("entity_id"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+
     public void update(BigInteger id, T obj) {
         Map<String, Object> fields = getAllFields(obj);
         delNull(fields);
-        try {
-            con = DriverManager.getConnection(url, user, password);
-            stmt = con.createStatement();
-        } catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
-        }
+        connect();
 
         for (Map.Entry<String, Object> entry : fields.entrySet()) {
             try {
@@ -98,12 +102,7 @@ public class EntityManager <T extends BaseEntity> {
     }
 
     public void delete(BigInteger id) {
-        try {
-            con = DriverManager.getConnection(url, user, password);
-            stmt = con.createStatement();
-        } catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
-        }
+        connect();
         try {
             stmt.executeUpdate("DELETE FROM entity WHERE id = '" + id + "'");
             stmt.executeUpdate("DELETE FROM value WHERE entity_id = '" + id + "'");
@@ -234,6 +233,14 @@ public class EntityManager <T extends BaseEntity> {
             ob = var5.next();
             System.out.println(ob);
         }
+    }
 
+    public void connect() {
+        try {
+            con = DriverManager.getConnection(url, user, password);
+            stmt = con.createStatement();
+        } catch (SQLException sqlEx) {
+            sqlEx.printStackTrace();
+        }
     }
 }
