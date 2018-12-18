@@ -3,32 +3,48 @@ package com.netcracker.superproject.controller;
 import com.netcracker.superproject.entity.User;
 import com.netcracker.superproject.persistence.EntityManager;
 import com.netcracker.superproject.services.UserService;
-import org.springframework.web.bind.annotation.*;
+import com.netcracker.superproject.springsecurity.EmailExistsException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.ModelAndView;
 
-import java.math.BigInteger;
-import java.util.Map;
+import javax.validation.Valid;
 
-@RestController
-@RequestMapping("user")
 public class UserController {
 
     EntityManager em = new EntityManager();
+    UserService service = new UserService();
 
-    @PostMapping
-    public void create(@RequestBody Map<String, String> info) {
-        User user = UserService.createUser(info.get("email"), info.get("password"));
-        em.create(user);
+    @RequestMapping(value = "/user/registration", method = RequestMethod.POST)
+    public ModelAndView registerUserAccount (@ModelAttribute("user") @Valid User accountDto,
+                                             BindingResult result, WebRequest request, Errors errors) {
+    User registered = new User();
+    if (!result.hasErrors()) {
+        registered = createUserAccount(accountDto, result);
+    }
+    if (registered == null) {
+        result.rejectValue("email", "message.regError");
+    }
+    if (result.hasErrors()) {
+        return new ModelAndView("registration", "user", accountDto);
+    }
+    else {
+        return new ModelAndView("successRegister", "user", accountDto);
+    }
     }
 
-    @PostMapping
-    public boolean login(@RequestBody Map<String, String> info) {
-        BigInteger id = em.getIdByParam("email", info.get("email"));
-        User user = em.read(id);
-        if (user.getPassword().equals(info.get("password"))) {
-            return true;
-        } else {
-            return false;
+    private User createUserAccount(User accountDto, BindingResult result) {
+    User registered = null;
+    try {
+        registered = service.registerNewUserAccount(accountDto);
+        } catch (EmailExistsException e) {
+            return null;
         }
+        return registered;
     }
 
 }
