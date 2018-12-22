@@ -28,6 +28,7 @@ public class UserService {
         user.setLastName(accountDto.getLastName());
         user.setPassword(Security.md5Custom(accountDto.getPassword()));
         user.setEmail(accountDto.getEmail());
+        em.create(user);
         return user;
     }
     private boolean emailExist(String email) {

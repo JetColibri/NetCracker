@@ -73,14 +73,13 @@ public class EntityManager <T extends BaseEntity> {
         return setAllFields(fields);
     }
 
-    //temporarily only for "User"
     public BigInteger getIdByParam(String param, String value) {
         BigInteger id = null;
         Map<String, Object> fields = new HashMap<>();
         connect();
         try {
-        ResultSet rs = stmt.executeQuery("SELECT entity_id FROM value WHERE  = '" + param + "' AND value = '" + value + "'");
-        id = BigInteger.valueOf(rs.getInt("entity_id"));
+        ResultSet rs = stmt.executeQuery("SELECT v.entity_id FROM value v, attribute a WHERE v.param = a.param AND a.title = '" + param + "' AND v.value = '" + value + "'");
+            id = BigInteger.valueOf(rs.getInt("entity_id"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
