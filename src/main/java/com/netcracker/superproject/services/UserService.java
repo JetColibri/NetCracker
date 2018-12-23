@@ -5,36 +5,27 @@ import com.netcracker.superproject.persistence.EntityManager;
 import com.netcracker.superproject.springsecurity.EmailExistsException;
 
 import java.math.BigInteger;
+import java.sql.Date;
+import java.time.LocalDate;
 
 public class UserService {
 
     EntityManager em = new EntityManager();
 
-    public static User createUser(String email, String password) {
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(Security.md5Custom(password)); // пароль в md5
-        return user;
-    }
-
-
     public User registerNewUserAccount(final User accountDto) throws EmailExistsException {
         if (emailExist(accountDto.getEmail())) {
             throw new EmailExistsException("There is an account with that email adress: " + accountDto.getEmail());
         }
-
-        final User user = new User();
-        user.setFirstName(accountDto.getFirstName());
-        user.setLastName(accountDto.getLastName());
-        user.setPassword(Security.md5Custom(accountDto.getPassword()));
-        user.setEmail(accountDto.getEmail());
-        em.create(user);
-        return user;
+        accountDto.setPassword(Security.md5Custom(accountDto.getPassword()));
+        accountDto.setRole("0");
+        accountDto.setRegistrationDate(Date.valueOf(LocalDate.now()));
+        em.create(accountDto);
+        return accountDto;
     }
+
     private boolean emailExist(String email) {
         BigInteger id = em.getIdByParam("email", email);
-        User user = em.read(id);
-        if (user != null) {
+        if (id != null) {
             return true;
         }
         return false;

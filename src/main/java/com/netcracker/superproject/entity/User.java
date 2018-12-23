@@ -8,35 +8,32 @@ import java.util.Date;
 @Entity(type = "1")
 public class User extends BaseEntity{
 
-    @Attribute(type = "002")
+    @Attribute(type = "1001")
     private String email;
 
-    @Attribute(type = "003")
+    @Attribute(type = "1002")
     private String password;
 
-    @Attribute(type = "004")
+    @Attribute(type = "1003")
     private String role;
 
-    @Attribute(type = "005")
+    @Attribute(type = "1004")
     private String firstName;
 
-    @Attribute(type = "006")
+    @Attribute(type = "1005")
     private String lastName;
 
-    @Attribute(type = "007")
-    private String photo;
-
-    @Attribute(type = "008")
+    @Attribute(type = "1006")
     private String location;
 
-    @Attribute(type = "009")
+    @Attribute(type = "1007")
     private Date birthdayDate;
 
-    @Attribute(type = "010")
+    @Attribute(type = "1008")
     private Date registrationDate;
 
-    @Attribute(type = "011")
-    private String socialNetworks;
+    @Attribute(type = "1009")
+    private String photo;
 
     public User() {
     }
@@ -112,12 +109,5 @@ public class User extends BaseEntity{
     public void setRegistrationDate(Date registrationDate) {
         this.registrationDate = registrationDate;
     }
-
-    public String getSocialNetworks() {
-        return this.socialNetworks;
-    }
-
-    public void setSocialNetworks(String socialNetworks) {
-        this.socialNetworks = socialNetworks;
-    }
+    
 }
