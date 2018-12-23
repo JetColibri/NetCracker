@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,9 +18,9 @@ import java.sql.*;
 public class EntityManager <T extends BaseEntity> {
 
     // JDBC URL, username and password of postgres server
-    private static final String url = "jdbc:postgresql://localhost:5432/postgres";
+    private static final String url = "jdbc:postgresql://localhost:5432/project";
     private static final String user = "postgres";
-    private static final String password = "";
+    private static final String password = "epifanik";
 
     // JDBC variables for opening and managing connection
     private static Connection con;
@@ -78,9 +79,9 @@ public class EntityManager <T extends BaseEntity> {
         Map<String, Object> fields = new HashMap<>();
         connect();
         try {
-        ResultSet rs = stmt.executeQuery("SELECT v.entity_id FROM value v, attribute a WHERE v.param = a.param AND a.title = '" + param + "' AND v.value = '" + value + "'");
-            id = BigInteger.valueOf(rs.getInt("entity_id"));
-        } catch (SQLException e) {
+        String[][] arr = createTable("SELECT v.entity_id FROM value v, attribute a WHERE v.param = a.param AND a.title = '" + param + "' AND v.value = '" + value + "'");
+        id = BigInteger.valueOf(Integer.parseInt(arr[1][0]));
+        } catch (SQLException | InstantiationException | ClassNotFoundException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return id;
@@ -241,5 +242,28 @@ public class EntityManager <T extends BaseEntity> {
         } catch (SQLException sqlEx) {
             sqlEx.printStackTrace();
         }
+    }
+
+    public String[][] createTable(String sql) throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
+        Statement statement = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        ResultSet resultSet = statement.executeQuery(sql);
+        int col = resultSet.getMetaData().getColumnCount();
+        resultSet.last();
+        int row = resultSet.getRow();
+        resultSet.first();
+        String[][] mass = new String[row + 1][col];
+        int j = 0;
+        for (int i = 1; i <= col; i++)
+            mass[j][i - 1] = resultSet.getMetaData().getColumnName(i);
+
+        resultSet.beforeFirst();
+        while (resultSet.next()) {
+            j++;
+            for (int i = 1; i <= col; i++) {
+                mass[j][i - 1] = resultSet.getString(i);
+            }
+        }
+        statement.closeOnCompletion();
+        return mass;
     }
 }
