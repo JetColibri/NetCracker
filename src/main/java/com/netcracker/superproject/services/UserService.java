@@ -24,11 +24,10 @@ public class UserService {
     }
 
     private boolean emailExist(String email) {
-        /*BigInteger id = em.getIdByParam("email", email);
-        User user = em.read(id);
-        if (user != null) {
+        BigInteger id = em.getIdByParam("email", email);
+        if (id != null) {
             return true;
-        }*/
+        }
         return false;
     }
 
