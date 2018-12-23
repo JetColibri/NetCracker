@@ -16,52 +16,61 @@ import java.sql.*;
 
 public class EntityManager <T extends BaseEntity> {
 
-    // JDBC URL, username and password of postgres server
-    private static final String url = "jdbc:postgresql://localhost:5432/postgres";
-    private static final String user = "postgres";
-    private static final String password = "";
-
-    // JDBC variables for opening and managing connection
-    private static Connection con;
-    private static Statement stmt;
-    private static ResultSet rs;
-
     public BigInteger create(T obj) {
         Map<String, Object> fields = getAllFields(obj);
         delNull(fields);
         BigInteger id = null;
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        Connection conn = null;
+
         try {
-            // opening database connection to postgres server
-            con = DriverManager.getConnection(url, user, password);
-
-            // getting Statement object to execute query
-            stmt = con.createStatement();
-
-
-            rs = stmt.executeQuery(queryInsertObject(obj));
+            conn = connect();
+            stmt = conn.prepareStatement("INSERT INTO entity (type_id) VALUES (?) RETURNING id");
+            ((PreparedStatement) stmt).setString(1, objectType(obj));
+            rs = ((PreparedStatement) stmt).executeQuery();
             rs.next();
             id = BigInteger.valueOf(rs.getInt(1));
-        } catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
-        }
 
-        for (Map.Entry<String, Object> entry : fields.entrySet()) {
+            for (Map.Entry<String, Object> entry : fields.entrySet()) {
+                    stmt = conn.prepareStatement("INSERT INTO value (entity_id, param, value) VALUES (?,?,?)");
+                    ((PreparedStatement) stmt).setInt(1, id.intValue());
+                    ((PreparedStatement) stmt).setString(2, entry.getKey());
+                    ((PreparedStatement) stmt).setString(3, (String) entry.getValue());
+                    ((PreparedStatement) stmt).execute();
+            }
+        } catch (SQLException e) {
+
+        } finally {
             try {
-                stmt.executeUpdate(queryInsertParam(id, entry.getKey(), String.valueOf(entry.getValue())));
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (SQLException e) {
-                e.printStackTrace();
             }
         }
-
         return id;
     }
 
     //temporarily only for "User"
     public User read(BigInteger id) {
         Map<String, Object> fields = new HashMap<>();
+        Statement stmt;
+        ResultSet rs = null;
+        Connection conn;
         connect();
         try {
-            ResultSet rs = stmt.executeQuery("SELECT * FROM value WHERE entity_id = '" + id + "'");
+            conn = connect();
+            stmt = conn.prepareStatement("SELECT * FROM value WHERE entity_id = ?");
+            ((PreparedStatement) stmt).setInt(1, id.intValue());
+            ((PreparedStatement) stmt).executeQuery();
             while (rs.next()) {
                 String param = rs.getString("param");
                 Object value = rs.getObject("value");
@@ -75,11 +84,20 @@ public class EntityManager <T extends BaseEntity> {
 
     public BigInteger getIdByParam(String param, String value) {
         BigInteger id = null;
-        Map<String, Object> fields = new HashMap<>();
-        connect();
+        Statement stmt;
+        ResultSet rs;
+        Connection conn;
+
         try {
-        ResultSet rs = stmt.executeQuery("SELECT v.entity_id FROM value v, attribute a WHERE v.param = a.param AND a.title = '" + param + "' AND v.value = '" + value + "'");
-            id = BigInteger.valueOf(rs.getInt("entity_id"));
+            conn = connect();
+            stmt = conn.prepareStatement("SELECT v.entity_id FROM value v, attribute a " +
+                    "WHERE v.param = a.param AND a.title = ? AND v.value = ? ");
+            ((PreparedStatement) stmt).setString(1, param);
+            ((PreparedStatement) stmt).setString(2, value);
+            rs = ((PreparedStatement) stmt).executeQuery();
+            if(rs.next()){
+                id = BigInteger.valueOf(rs.getInt(1));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -89,11 +107,17 @@ public class EntityManager <T extends BaseEntity> {
     public void update(BigInteger id, T obj) {
         Map<String, Object> fields = getAllFields(obj);
         delNull(fields);
-        connect();
+        Statement stmt;
+        Connection conn;
 
         for (Map.Entry<String, Object> entry : fields.entrySet()) {
             try {
-                stmt.executeUpdate(queryUpdateParam(id, entry.getKey(), String.valueOf(entry.getValue())));
+                conn = connect();
+                stmt = conn.prepareStatement("UPDATE value SET value = (?) WHERE param = ? AND entity_id = ?");
+                ((PreparedStatement) stmt).setString(1, (String) entry.getValue());
+                ((PreparedStatement) stmt).setString(2, entry.getKey());
+                ((PreparedStatement) stmt).setInt(3, id.intValue());
+                ((PreparedStatement) stmt).execute();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -101,10 +125,14 @@ public class EntityManager <T extends BaseEntity> {
     }
 
     public void delete(BigInteger id) {
-        connect();
+        Statement stmt;
+        Connection conn;
         try {
-            stmt.executeUpdate("DELETE FROM entity WHERE id = '" + id + "'");
-            stmt.executeUpdate("DELETE FROM value WHERE entity_id = '" + id + "'");
+            conn = connect();
+            stmt = conn.prepareStatement("DELETE FROM entity WHERE id = ?");
+            ((PreparedStatement) stmt).execute();
+            stmt = conn.prepareStatement("DELETE FROM value WHERE entity_id = ?");
+            ((PreparedStatement) stmt).execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -190,26 +218,6 @@ public class EntityManager <T extends BaseEntity> {
         return user;
     }
 
-    private String queryInsertObject(T obj) {
-        String typeId = objectType(obj);
-        String sql = "INSERT INTO entity (type_id) VALUES ('" + typeId + " ') RETURNING id";
-        return sql;
-    }
-
-    private String queryInsertParam(BigInteger id, String param, String val) {
-        String value = "";
-        value += "'" + id + "'";
-        value += ",";
-        value += "'" + param + "'";
-        value += ",";
-        value += "'" + val + "'";
-        return "INSERT INTO value (entity_id, param, value) VALUES (" + value + ");";
-    }
-
-    private String queryUpdateParam(BigInteger id, String param, String value) {
-        return "UPDATE value SET value = ('" + value + "') WHERE param = '" + param + "' AND entity_id = '" + id + "'";
-    }
-
     private String firstUpperCase(String word) {
         return word != null && !word.isEmpty() ? word.substring(0, 1).toUpperCase() + word.substring(1) : "";
     }
@@ -234,12 +242,18 @@ public class EntityManager <T extends BaseEntity> {
         }
     }
 
-    public void connect() {
+    private Connection connect() {
+        // JDBC URL, username and password of postgres server
+        final String url = "jdbc:postgresql://localhost:5432/postgres";
+        final String user = "postgres";
+        final String password = "";
+        Connection conn = null;
+
         try {
-            con = DriverManager.getConnection(url, user, password);
-            stmt = con.createStatement();
+            conn = DriverManager.getConnection(url, user, password);
         } catch (SQLException sqlEx) {
             sqlEx.printStackTrace();
         }
+        return conn;
     }
 }
