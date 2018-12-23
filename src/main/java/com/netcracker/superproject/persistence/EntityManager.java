@@ -242,6 +242,42 @@ public class EntityManager <T extends BaseEntity> {
         }
     }
 
+    public void dropTables() {
+        try {
+            connect().prepareStatement("DROP TABLE type;").execute();
+            connect().prepareStatement("DROP TABLE entity;").execute();
+            connect().prepareStatement("DROP TABLE attribute;").execute();
+            connect().prepareStatement("DROP TABLE value;").execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createTables() {
+        try {
+            connect().prepareStatement("CREATE TABLE type (id serial, title text);").execute();
+            connect().prepareStatement("INSERT INTO type(title) VALUES ('user');").execute();
+            connect().prepareStatement("INSERT INTO type(title) VALUES ('event');").execute();
+
+            connect().prepareStatement("CREATE TABLE entity(id serial, type_id integer);").execute();
+
+            connect().prepareStatement("CREATE TABLE attribute (id serial, type_id integer, param text, title text);").execute();
+            connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1001', 'email');").execute();
+            connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1002', 'password');").execute();
+            connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1003', 'role');").execute();
+            connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1004', 'firstName');").execute();
+            connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1005', 'lastName');").execute();
+            connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1006', 'location');").execute();
+            connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1007', 'birthdayDate');").execute();
+            connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1008', 'registrationDate');").execute();
+            connect().prepareStatement("INSERT INTO attribute( type_id, param, title) VALUES (1, '1009', 'photo');").execute();
+
+            connect().prepareStatement("CREATE TABLE value (id serial, entity_id integer, param text, value text);").execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private Connection connect() {
         // JDBC URL, username and password of postgres server
         final String url = "jdbc:postgresql://localhost:5432/postgres";
