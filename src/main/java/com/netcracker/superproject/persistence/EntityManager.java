@@ -1,7 +1,6 @@
 package com.netcracker.superproject.persistence;
 
 import com.netcracker.superproject.entity.BaseEntity;
-import com.netcracker.superproject.entity.User;
 import com.netcracker.superproject.entity.annotations.Attribute;
 import com.netcracker.superproject.entity.annotations.Entity;
 import java.lang.reflect.Field;
@@ -30,9 +29,11 @@ public class EntityManager <T extends BaseEntity> {
             stmt = conn.prepareStatement("INSERT INTO entity (type_id) VALUES (?) RETURNING id");
             ((PreparedStatement) stmt).setString(1, objectType(obj));
             rs = ((PreparedStatement) stmt).executeQuery();
-            rs.next();
-            id = BigInteger.valueOf(rs.getInt(1));
 
+            rs.next();
+            if(rs.next()){
+                id = BigInteger.valueOf(rs.getInt(1));
+            }
             for (Map.Entry<String, Object> entry : fields.entrySet()) {
                     stmt = conn.prepareStatement("INSERT INTO value (entity_id, param, value) VALUES (?,?,?)");
                     ((PreparedStatement) stmt).setInt(1, id.intValue());
@@ -43,34 +44,22 @@ public class EntityManager <T extends BaseEntity> {
         } catch (SQLException e) {
 
         } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (stmt != null) {
-                    stmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-            }
+          closeConnect(stmt, rs, conn);
         }
         return id;
     }
 
-    //temporarily only for "User"
-    public User read(BigInteger id) {
+
+    public Object read(BigInteger id, Class clazz) {
         Map<String, Object> fields = new HashMap<>();
-        Statement stmt;
+        Statement stmt = null;
         ResultSet rs = null;
-        Connection conn;
-        connect();
+        Connection conn = null;
         try {
             conn = connect();
             stmt = conn.prepareStatement("SELECT * FROM value WHERE entity_id = ?");
             ((PreparedStatement) stmt).setInt(1, id.intValue());
-            ((PreparedStatement) stmt).executeQuery();
+            rs = ((PreparedStatement) stmt).executeQuery();
             while (rs.next()) {
                 String param = rs.getString("param");
                 Object value = rs.getObject("value");
@@ -78,8 +67,10 @@ public class EntityManager <T extends BaseEntity> {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }finally {
+            closeConnect(stmt, rs, conn);
         }
-        return setAllFields(fields);
+        return setAllFields(fields, clazz);
     }
 
     public BigInteger getIdByParam(String param, String value) {
@@ -107,8 +98,8 @@ public class EntityManager <T extends BaseEntity> {
     public void update(BigInteger id, T obj) {
         Map<String, Object> fields = getAllFields(obj);
         delNull(fields);
-        Statement stmt;
-        Connection conn;
+        Statement stmt = null;
+        Connection conn = null;
 
         for (Map.Entry<String, Object> entry : fields.entrySet()) {
             try {
@@ -120,13 +111,15 @@ public class EntityManager <T extends BaseEntity> {
                 ((PreparedStatement) stmt).execute();
             } catch (SQLException e) {
                 e.printStackTrace();
+            }finally {
+                closeConnect(stmt, null, conn);
             }
         }
     }
 
     public void delete(BigInteger id) {
-        Statement stmt;
-        Connection conn;
+        Statement stmt = null;
+        Connection conn = null;
         try {
             conn = connect();
             stmt = conn.prepareStatement("DELETE FROM entity WHERE id = ?");
@@ -135,6 +128,8 @@ public class EntityManager <T extends BaseEntity> {
             ((PreparedStatement) stmt).execute();
         } catch (SQLException e) {
             e.printStackTrace();
+        }finally {
+            closeConnect(stmt, null, conn);
         }
     }
 
@@ -179,11 +174,19 @@ public class EntityManager <T extends BaseEntity> {
         return allFields;
     }
 
-    private User setAllFields(Map<String, Object> allFields) {
-        User user = new User();
+    private Object setAllFields(Map<String, Object> allFields, Class<T> clazz) {
         Field[] fs = null;
-        Class<?> clazz = User.class;
         Method method = null;
+
+        T obj = null;
+
+        try {
+            obj = clazz.newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         try {
             Class c = Class.forName(clazz.getName());
@@ -206,7 +209,7 @@ public class EntityManager <T extends BaseEntity> {
                     }
 
                     try {
-                        method.invoke(user, allFields.get(st));
+                        method.invoke(obj, allFields.get(st));
                     } catch (IllegalAccessException var12) {
                         System.out.println("Ошибочка 7.1");
                     } catch (InvocationTargetException var13) {
@@ -215,7 +218,7 @@ public class EntityManager <T extends BaseEntity> {
                 }
             }
         }
-        return user;
+        return obj;
     }
 
     private String firstUpperCase(String word) {
@@ -259,7 +262,7 @@ public class EntityManager <T extends BaseEntity> {
             connect().prepareStatement("INSERT INTO type(title) VALUES ('user');").execute();
             connect().prepareStatement("INSERT INTO type(title) VALUES ('event');").execute();
 
-            connect().prepareStatement("CREATE TABLE entity(id serial, type_id integer);").execute();
+            connect().prepareStatement("CREATE TABLE entity(id serial, type_id text);").execute();
 
             connect().prepareStatement("CREATE TABLE attribute (id serial, type_id integer, param text, title text);").execute();
             connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1001', 'email');").execute();
@@ -291,5 +294,20 @@ public class EntityManager <T extends BaseEntity> {
             sqlEx.printStackTrace();
         }
         return conn;
+    }
+
+    private void closeConnect(Statement stmt, ResultSet rs, Connection conn){
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+        }
     }
 }

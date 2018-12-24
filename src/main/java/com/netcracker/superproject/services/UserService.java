@@ -18,7 +18,7 @@ public class UserService {
         }
         accountDto.setPassword(Security.md5Custom(accountDto.getPassword()));
         accountDto.setRole("0");
-        accountDto.setRegistrationDate(Date.valueOf(LocalDate.now()));
+        accountDto.setRegistrationDate(String.valueOf(LocalDate.now()));
         em.create(accountDto);
         return accountDto;
     }

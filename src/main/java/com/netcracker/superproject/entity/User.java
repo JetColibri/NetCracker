@@ -27,10 +27,10 @@ public class User extends BaseEntity{
     private String location;
 
     @Attribute(type = "1007")
-    private Date birthdayDate;
+    private String birthdayDate;
 
     @Attribute(type = "1008")
-    private Date registrationDate;
+    private String registrationDate;
 
     @Attribute(type = "1009")
     private String photo;
@@ -94,19 +94,19 @@ public class User extends BaseEntity{
         this.location = location;
     }
 
-    public Date getBirthdayDate() {
+    public String getBirthdayDate() {
         return this.birthdayDate;
     }
 
-    public void setBirthdayDate(Date birthdayDate) {
+    public void setBirthdayDate(String birthdayDate) {
         this.birthdayDate = birthdayDate;
     }
 
-    public Date getRegistrationDate() {
+    public String getRegistrationDate() {
         return this.registrationDate;
     }
 
-    public void setRegistrationDate(Date registrationDate) {
+    public void setRegistrationDate(String registrationDate) {
         this.registrationDate = registrationDate;
     }
     
