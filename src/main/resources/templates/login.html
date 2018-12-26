@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="panel panel-default" style="margin-top:45px">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Login with Email and Password</h3>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div th:if="${param.logout}">
+                        <div class="alert alert-info" role="alert">You've been logged out successfully.</div>
+                    </div>
+
+                    <div th:if="${param.error}">
+                        <div class="alert alert-danger" role="alert">Invalid Email or Password.</div>
+                    </div>
+
+                    <div th:if="${param.registration}">
+                        <div class="alert alert-info" role="alert">You've registration successfully.</div>
+                    </div>
+
+
+                    <form method="post" th:action="@{/login}">
+                    <div class="form-group">
+                        <label for="username">Email address</label>
+                        <input type="email" class="form-control" id="username" placeholder="Email" name="username">
+                    </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Password" name="password">
+                </div>
+                    <button type="submit" class="btn btn-default">Log in</button>
+
+                </form>
+
+                    <br>
+                    <br>
+                    <form th:action="@{/registration}" method="get">
+                        <input type="submit" class="btn btn-default" value="Registration"/>
+                    </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

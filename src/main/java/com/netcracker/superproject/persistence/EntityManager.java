@@ -30,7 +30,6 @@ public class EntityManager <T extends BaseEntity> {
             ((PreparedStatement) stmt).setString(1, objectType(obj));
             rs = ((PreparedStatement) stmt).executeQuery();
 
-            rs.next();
             if(rs.next()){
                 id = BigInteger.valueOf(rs.getInt(1));
             }

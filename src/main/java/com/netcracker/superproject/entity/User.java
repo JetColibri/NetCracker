@@ -2,11 +2,24 @@ package com.netcracker.superproject.entity;
 
 import com.netcracker.superproject.entity.annotations.Attribute;
 import com.netcracker.superproject.entity.annotations.Entity;
+import lombok.Builder;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Date;
+import java.util.List;
+
 
 @Entity(type = "1")
-public class User extends BaseEntity{
+public class User extends BaseEntity implements UserDetails {
+    @Attribute(type = "100x")
+    private List<Role> authorities;
+    @Attribute(type = "100x")
+    private boolean accountNonExpired;
+    @Attribute(type = "100x")
+    private boolean accountNonLocked;
+    @Attribute(type = "100x")
+    private boolean credentialsNonExpired;
+    @Attribute(type = "100x")
+    private boolean enable;
 
     @Attribute(type = "1001")
     private String email;
@@ -74,8 +87,8 @@ public class User extends BaseEntity{
         return this.lastName;
     }
 
-    public void setLastName(String plastName) {
-        this.lastName = plastName;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getPhoto() {
@@ -109,5 +122,54 @@ public class User extends BaseEntity{
     public void setRegistrationDate(String registrationDate) {
         this.registrationDate = registrationDate;
     }
-    
+
+    @Override
+    public List<Role> getAuthorities() {
+        return authorities;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enable;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    public void setAuthorities(List<Role> authorities) {
+        this.authorities = authorities;
+    }
+
+    public void setAccountNonExpired(boolean accountNonExpired) {
+        this.accountNonExpired = accountNonExpired;
+    }
+
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
+    }
+
+    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+        this.credentialsNonExpired = credentialsNonExpired;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
 }
