@@ -1,6 +1,7 @@
 package com.netcracker.superproject.persistence;
 
 import com.netcracker.superproject.entity.BaseEntity;
+import com.netcracker.superproject.entity.User;
 import com.netcracker.superproject.entity.annotations.Attribute;
 import com.netcracker.superproject.entity.annotations.Entity;
 import java.lang.reflect.Field;
@@ -48,12 +49,15 @@ public class EntityManager <T extends BaseEntity> {
         return id;
     }
 
-
-    public Object read(BigInteger id, Class clazz) {
+    public T read(BigInteger id, Class<T> clazz) {
         Map<String, Object> fields = new HashMap<>();
         Statement stmt = null;
         ResultSet rs = null;
         Connection conn = null;
+
+        //BaseEntity
+        fields.put("0001", id);
+
         try {
             conn = connect();
             stmt = conn.prepareStatement("SELECT * FROM value WHERE entity_id = ?");
@@ -96,6 +100,7 @@ public class EntityManager <T extends BaseEntity> {
 
     public void update(BigInteger id, T obj) {
         Map<String, Object> fields = getAllFields(obj);
+        obj.setId(null);
         delNull(fields);
         Statement stmt = null;
         Connection conn = null;
@@ -104,7 +109,8 @@ public class EntityManager <T extends BaseEntity> {
             try {
                 conn = connect();
                 stmt = conn.prepareStatement("UPDATE value SET value = (?) WHERE param = ? AND entity_id = ?");
-                ((PreparedStatement) stmt).setString(1, (String) entry.getValue());
+
+                ((PreparedStatement) stmt).setString(1, String.valueOf(entry.getValue()));
                 ((PreparedStatement) stmt).setString(2, entry.getKey());
                 ((PreparedStatement) stmt).setInt(3, id.intValue());
                 ((PreparedStatement) stmt).execute();
@@ -134,50 +140,41 @@ public class EntityManager <T extends BaseEntity> {
 
     private String objectType(T obj) {
         Class<?> clazz = obj.getClass();
-        Entity ann = (Entity) clazz.getAnnotation(Entity.class);
+        Entity ann = clazz.getAnnotation(Entity.class);
         return ann.type();
     }
 
     private Map<String, Object> getAllFields(T obj) {
-        Field[] fs = null;
-        Class<?> clazz = obj.getClass();
+        Class<T> clazz = (Class<T>) obj.getClass();
         Map<String, Object> allFields = new HashMap();
         Method method = null;
         Object value = null;
+        Field[] fields = getNameFields(clazz);
 
-        try {
-            Class c = Class.forName(clazz.getName());
-            fs = c.getDeclaredFields();
-        } catch (ClassNotFoundException var12) {
-            System.out.println("Ошибочка 3");
-        }
-
-        for (int i = 0; i < fs.length; ++i) {
+        for (Field f : fields) {
             try {
-                method = clazz.getMethod("get" + firstUpperCase(String.valueOf(fs[i].getName())));
-            } catch (NoSuchMethodException var11) {
+                method = clazz.getMethod("get" + firstUpperCase(String.valueOf(f.getName())));
+            } catch (NoSuchMethodException ex) {
                 System.out.println("Ошибочка 4");
             }
 
             try {
                 value = method.invoke(obj);
-            } catch (IllegalAccessException var9) {
+            } catch (IllegalAccessException ex) {
                 System.out.println("Ошибочка 5.1");
-            } catch (InvocationTargetException var10) {
+            } catch (InvocationTargetException ex) {
                 System.out.println("Ошибочка 5.2");
             }
-            Attribute ann = (Attribute) fs[i].getAnnotation(Attribute.class);
+            Attribute ann = f.getAnnotation(Attribute.class);
             allFields.put(ann.type(), value);
         }
-
         return allFields;
     }
 
-    private Object setAllFields(Map<String, Object> allFields, Class<T> clazz) {
-        Field[] fs = null;
+    private T setAllFields(Map<String, Object> allFields, Class<T> clazz) {
         Method method = null;
-
         T obj = null;
+        Field[] fields = getNameFields(clazz);
 
         try {
             obj = clazz.newInstance();
@@ -187,28 +184,18 @@ public class EntityManager <T extends BaseEntity> {
             e.printStackTrace();
         }
 
-        try {
-            Class c = Class.forName(clazz.getName());
-            fs = c.getDeclaredFields();
-        } catch (ClassNotFoundException var15) {
-            System.out.println("Ошибочка 6");
-        }
-
-        for (int i = 0; i < fs.length; i++) {
-            Attribute ann = (Attribute) fs[i].getAnnotation(Attribute.class);
-            Iterator var9 = allFields.keySet().iterator();
-
-            while (var9.hasNext()) {
-                String st = (String) var9.next();
-                if (st.equals(ann.type())) {
+        for (Map.Entry<String, Object> entry : allFields.entrySet()) {
+            for (Field f : fields) {
+                Attribute ann = f.getAnnotation(Attribute.class);
+                if(entry.getKey().equals(ann.type())){
                     try {
-                        method = clazz.getMethod("set" + firstUpperCase(String.valueOf(fs[i].getName())), fs[i].getType());
-                    } catch (NoSuchMethodException var14) {
+                        method = clazz.getMethod("set" + firstUpperCase(String.valueOf(f.getName())), f.getType());
+                    } catch (NoSuchMethodException ex) {
                         System.out.println("Ошибочка 7");
                     }
 
                     try {
-                        method.invoke(obj, allFields.get(st));
+                        method.invoke(obj, entry.getValue());
                     } catch (IllegalAccessException var12) {
                         System.out.println("Ошибочка 7.1");
                     } catch (InvocationTargetException var13) {
@@ -264,6 +251,7 @@ public class EntityManager <T extends BaseEntity> {
             connect().prepareStatement("CREATE TABLE entity(id serial, type_id text);").execute();
 
             connect().prepareStatement("CREATE TABLE attribute (id serial, type_id integer, param text, title text);").execute();
+            connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '0001', 'id');").execute();
             connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1001', 'email');").execute();
             connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1002', 'password');").execute();
             connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1003', 'role');").execute();
@@ -273,6 +261,8 @@ public class EntityManager <T extends BaseEntity> {
             connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1007', 'birthdayDate');").execute();
             connect().prepareStatement("INSERT INTO attribute (type_id, param, title) VALUES (1, '1008', 'registrationDate');").execute();
             connect().prepareStatement("INSERT INTO attribute( type_id, param, title) VALUES (1, '1009', 'photo');").execute();
+            connect().prepareStatement("INSERT INTO attribute( type_id, param, title) VALUES (1, '1010', 'tmpEmail');").execute();
+            connect().prepareStatement("INSERT INTO attribute( type_id, param, title) VALUES (1, '1011', 'token');").execute();
 
             connect().prepareStatement("CREATE TABLE value (id serial, entity_id integer, param text, value text);").execute();
         } catch (SQLException e) {
@@ -280,9 +270,26 @@ public class EntityManager <T extends BaseEntity> {
         }
     }
 
+    private Field[] getNameFields(Class<T> clazz){
+        Field[] parentFs;
+        Field[] childFs;
+        Field[] fields = null;
+        Class<?> parentClazz = BaseEntity.class;
+        try {
+            parentFs = Class.forName(parentClazz.getName()).getDeclaredFields();
+            childFs = Class.forName(clazz.getName()).getDeclaredFields();
+
+            fields = new Field[parentFs.length + childFs.length];
+            System.arraycopy(parentFs, 0, fields, 0, parentFs.length);
+            System.arraycopy(childFs, 0, fields, parentFs.length, childFs.length);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Ошибочка 3");
+        }
+        return fields;
+    }
     private Connection connect() {
         // JDBC URL, username and password of postgres server
-        final String url = "jdbc:postgresql://localhost:5432/postgres";
+        final String url = "jdbc:postgresql://localhost:5433/postgres";
         final String user = "postgres";
         final String password = "";
         Connection conn = null;

@@ -10,22 +10,22 @@ import java.util.List;
 
 @Entity(type = "1")
 public class User extends BaseEntity implements UserDetails {
-    @Attribute(type = "100x")
+    @Attribute(type = "100x6")
     private List<Role> authorities;
-    @Attribute(type = "100x")
+    @Attribute(type = "100x2")
     private boolean accountNonExpired;
-    @Attribute(type = "100x")
+    @Attribute(type = "100x3")
     private boolean accountNonLocked;
-    @Attribute(type = "100x")
+    @Attribute(type = "100x4")
     private boolean credentialsNonExpired;
-    @Attribute(type = "100x")
+    @Attribute(type = "100x5")
     private boolean enable;
 
     @Attribute(type = "1001")
     private String email;
 
     @Attribute(type = "1002")
-    private String password;
+    private transient String password;
 
     @Attribute(type = "1003")
     private String role;
@@ -47,6 +47,29 @@ public class User extends BaseEntity implements UserDetails {
 
     @Attribute(type = "1009")
     private String photo;
+
+    @Attribute(type = "1010")
+    private String tmpEmail;
+
+    @Attribute(type = "1011")
+    private String token;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getTmpEmail() {
+        return tmpEmail;
+    }
+
+    public void setTmpEmail(String tmpEmail) {
+        this.tmpEmail = tmpEmail;
+    }
+
 
     public User() {
     }

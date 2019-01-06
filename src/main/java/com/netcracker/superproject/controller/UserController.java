@@ -1,5 +1,8 @@
 package com.netcracker.superproject.controller;
 
+import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import com.netcracker.superproject.entity.User;
@@ -19,7 +22,8 @@ import javax.validation.Valid;
 public class UserController {
 
     EntityManager em = new EntityManager();
-    UserService service = new UserService();
+    @Autowired
+    UserService service;
 
     @RequestMapping(value = "/registration", method = RequestMethod.POST)
     public ModelAndView registerUserAccount(@ModelAttribute("user") @Valid User accountDto,
@@ -60,4 +64,17 @@ public class UserController {
         return registered;
     }
 
+    @GetMapping("/profile")
+    public String getProfile(){
+        return "profile";
+    }
+
+    @PostMapping("/profile")
+    public String updateProfile(@ModelAttribute("user") @Valid User accountDto,
+                                BindingResult result){
+        if (!result.hasErrors()) {
+            service.updateProfile(accountDto);
+        }
+       return "profile";
+    }
 }
