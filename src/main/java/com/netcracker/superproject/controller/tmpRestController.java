@@ -36,8 +36,10 @@ public class tmpRestController {
     }
 
     @PostMapping("/email")
-    public String updateEmail(@RequestParam("email") String email){
-        service.updateEmail(email);
-        return "true";
+    public String updateEmail(@RequestParam("email") String email, @RequestParam("password") String password){
+        if(service.updateEmail(email, password)){
+            return "true";
+        }
+        return "false";
     }
 }

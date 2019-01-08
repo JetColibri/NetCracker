@@ -122,8 +122,13 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void updateEmail(String email) {
+    public boolean updateEmail(String email, String password) {
         User activeUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+
+        if(!BCrypt.checkpw(password, activeUser.getPassword())){
+           return false;
+        }
 
         User user = new User();
         user.setTmpEmail(email);
@@ -145,11 +150,14 @@ public class UserService implements UserDetailsService {
         }
 
         em.update(activeUser.getId(), user);
+
+        return true;
     }
 
     public void confirmEmail(String email, String token) {
         BigInteger id = em.getIdByParam("tmpEmail", email);
         User user = (User) em.read(id, User.class);
+
         if (user.getToken().equals(token)) {
             user.setToken("");
             user.setTmpEmail("");
