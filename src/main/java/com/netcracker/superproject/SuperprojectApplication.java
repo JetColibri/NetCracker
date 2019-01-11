@@ -16,7 +16,7 @@ public class SuperprojectApplication {
 
         SpringApplication.run(SuperprojectApplication.class, args);
 
-        em.dropTables();
-        em.createTables();
+        //em.dropTables();
+        //em.createTables();
     }
 }

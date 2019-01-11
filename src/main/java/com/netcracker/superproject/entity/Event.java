@@ -25,10 +25,7 @@ public class Event extends BaseEntity {
     private String photos;
 
     @Attribute(type = "2007")
-    private String orginizer_id;
-
-    @Attribute(type = "2008")
-    private String polls_id;
+    private String date;
 
     public Event() {
     }
@@ -81,19 +78,4 @@ public class Event extends BaseEntity {
         this.photos = photos;
     }
 
-    public String getOrginizer_id() {
-        return orginizer_id;
-    }
-
-    public void setOrginizer_id(String orginizer_id) {
-        this.orginizer_id = orginizer_id;
-    }
-
-    public String getPolls_id() {
-        return polls_id;
-    }
-
-    public void setPolls_id(String polls_id) {
-        this.polls_id = polls_id;
-    }
 }
