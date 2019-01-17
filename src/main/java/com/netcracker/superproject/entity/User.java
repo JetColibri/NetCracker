@@ -2,9 +2,11 @@ package com.netcracker.superproject.entity;
 
 import com.netcracker.superproject.entity.annotations.Attribute;
 import com.netcracker.superproject.entity.annotations.Entity;
+import com.netcracker.superproject.entity.annotations.Reference;
 import lombok.Builder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -40,10 +42,10 @@ public class User extends BaseEntity implements UserDetails {
     private String location;
 
     @Attribute(type = "1007")
-    private String birthdayDate;
+    private Date birthdayDate;
 
     @Attribute(type = "1008")
-    private String registrationDate;
+    private Date registrationDate;
 
     @Attribute(type = "1009")
     private String photo;
@@ -68,10 +70,6 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setTmpEmail(String tmpEmail) {
         this.tmpEmail = tmpEmail;
-    }
-
-
-    public User() {
     }
 
     public String getEmail() {
@@ -130,19 +128,19 @@ public class User extends BaseEntity implements UserDetails {
         this.location = location;
     }
 
-    public String getBirthdayDate() {
+    public Date getBirthdayDate() {
         return this.birthdayDate;
     }
 
-    public void setBirthdayDate(String birthdayDate) {
+    public void setBirthdayDate(Date birthdayDate) {
         this.birthdayDate = birthdayDate;
     }
 
-    public String getRegistrationDate() {
+    public Date getRegistrationDate() {
         return this.registrationDate;
     }
 
-    public void setRegistrationDate(String registrationDate) {
+    public void setRegistrationDate(Date registrationDate) {
         this.registrationDate = registrationDate;
     }
 
@@ -170,6 +168,28 @@ public class User extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return enable;
     }
+
+    // for EntityManager
+    public boolean getAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    public boolean getAccountNonLocked() {
+        return accountNonLocked;
+    }
+
+    public boolean getCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    public boolean getEnabled() {
+        return enable;
+    }
+
+    public boolean getEnable() {
+        return enable;
+    }
+    //
 
     @Override
     public String getUsername() {
