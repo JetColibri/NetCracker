@@ -14,7 +14,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-import java.util.Map.Entry;
 import java.sql.*;
 
 public class EntityManager <T extends BaseEntity> {
@@ -27,24 +26,23 @@ public class EntityManager <T extends BaseEntity> {
         delNull(fields);
         BigInteger id = null;
 
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try {
-
             stmt = conn.prepareStatement("INSERT INTO entity (type_id) VALUES (?) RETURNING id");
-            ((PreparedStatement) stmt).setString(1, objectType(obj));
-            rs = ((PreparedStatement) stmt).executeQuery();
+            stmt.setString(1, objectType(obj));
+            rs = stmt.executeQuery();
 
             if (rs.next()) {
                 id = BigInteger.valueOf(rs.getInt(1));
             }
             for (Map.Entry<String, Object> entry : fields.entrySet()) {
                 stmt = conn.prepareStatement("INSERT INTO value (entity_id, param, value) VALUES (?,?,?)");
-                ((PreparedStatement) stmt).setInt(1, id.intValue());
-                ((PreparedStatement) stmt).setString(2, entry.getKey());
-                ((PreparedStatement) stmt).setString(3, String.valueOf(entry.getValue()));
-                ((PreparedStatement) stmt).execute();
+                stmt.setInt(1, id.intValue());
+                stmt.setString(2, entry.getKey());
+                stmt.setString(3, String.valueOf(entry.getValue()));
+                stmt.execute();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -58,7 +56,7 @@ public class EntityManager <T extends BaseEntity> {
 
     public T read(BigInteger id, Class<T> clazz) {
         Map<String, Object> fields = new HashMap<>();
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         ResultSet rs = null;
 
         //BaseEntity
@@ -66,8 +64,8 @@ public class EntityManager <T extends BaseEntity> {
 
         try {
             stmt = conn.prepareStatement("SELECT * FROM value WHERE entity_id = ?");
-            ((PreparedStatement) stmt).setInt(1, id.intValue());
-            rs = ((PreparedStatement) stmt).executeQuery();
+            stmt.setInt(1, id.intValue());
+            rs = stmt.executeQuery();
             while (rs.next()) {
                 String param = rs.getString("param");
                 Object value = rs.getObject("value");
@@ -85,15 +83,15 @@ public class EntityManager <T extends BaseEntity> {
 
     public BigInteger getIdByParam(String param, String value) {
         BigInteger id = null;
-        Statement stmt;
+        PreparedStatement stmt;
         ResultSet rs;
 
         try {
             stmt = conn.prepareStatement("SELECT v.entity_id FROM value v, attribute a " +
                     "WHERE v.param = a.param AND a.title = ? AND v.value = ? ");
-            ((PreparedStatement) stmt).setString(1, param);
-            ((PreparedStatement) stmt).setString(2, value);
-            rs = ((PreparedStatement) stmt).executeQuery();
+            stmt.setString(1, param);
+            stmt.setString(2, value);
+            rs = stmt.executeQuery();
             if (rs.next()) {
                 id = BigInteger.valueOf(rs.getInt(1));
             }
@@ -109,16 +107,16 @@ public class EntityManager <T extends BaseEntity> {
         Map<String, Object> fields = getAllFields(obj);
         obj.setId(null);
         delNull(fields);
-        Statement stmt = null;
+        PreparedStatement stmt = null;
 
         for (Map.Entry<String, Object> entry : fields.entrySet()) {
             try {
                 stmt = conn.prepareStatement("UPDATE value SET value = (?) WHERE param = ? AND entity_id = ?");
 
-                ((PreparedStatement) stmt).setString(1, String.valueOf(entry.getValue()));
-                ((PreparedStatement) stmt).setString(2, entry.getKey());
-                ((PreparedStatement) stmt).setInt(3, id.intValue());
-                ((PreparedStatement) stmt).execute();
+                stmt.setString(1, String.valueOf(entry.getValue()));
+                stmt.setString(2, entry.getKey());
+                stmt.setInt(3, id.intValue());
+                stmt.execute();
             } catch (SQLException e) {
                 e.printStackTrace();
                 log.info(e);
@@ -129,12 +127,12 @@ public class EntityManager <T extends BaseEntity> {
     }
 
     public void delete(BigInteger id) {
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement("DELETE FROM entity WHERE id = ?");
-            ((PreparedStatement) stmt).execute();
+            stmt.execute();
             stmt = conn.prepareStatement("DELETE FROM value WHERE entity_id = ?");
-            ((PreparedStatement) stmt).execute();
+            stmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
             log.info(e);
@@ -181,7 +179,7 @@ public class EntityManager <T extends BaseEntity> {
         return allFields;
     }
 
-    private T setAllFields(Map<String, Object> allFields, Class<T> clazz) {
+    public T setAllFields(Map<String, Object> allFields, Class<T> clazz) {
         Method method = null;
         T obj = null;
         Field[] fields = getNameFields(clazz);
@@ -236,26 +234,103 @@ public class EntityManager <T extends BaseEntity> {
         return obj;
     }
 
+    public List<T> getSomeEntities(Class<T> clazz, int firstEntity, int totalEntities){
+        PreparedStatement stmt;
+        ResultSet rs;
+
+        List<T> objects = new ArrayList<>();
+        int tmp = -1;
+        Entity type_id = clazz.getAnnotation(Entity.class);
+        Map<String, Object> entityFields = new HashMap<>();
+
+        try {
+            stmt = conn.prepareStatement("WITH entities AS (SELECT id FROM entity  WHERE type_id = ?  LIMIT ? ) \n" +
+                    "SELECT v.entity_id, v.param, v.value\n" +
+                    " FROM value AS v JOIN entities ON entities.id = v.entity_id WHERE entity_id >= ?;");
+            stmt.setString(1,  type_id.type());
+            stmt.setInt(2, totalEntities);
+            stmt.setInt(3, firstEntity);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                if(tmp != rs.getInt("entity_id")){
+                    if(tmp != -1){
+                        objects.add(setAllFields(entityFields, clazz));
+                    }
+                    tmp = rs.getInt("entity_id");
+                    entityFields.clear();
+                    entityFields.put("0001", BigInteger.valueOf(tmp));
+                }else{
+                    entityFields.put(rs.getString("param"), rs.getString("value"));
+                }
+                if(rs.isLast()){
+                    objects.add(setAllFields(entityFields, clazz));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+        return objects;
+    }
+
+
     private String firstUpperCase(String word) {
         return word != null && !word.isEmpty() ? word.substring(0, 1).toUpperCase() + word.substring(1) : "";
     }
 
     private void delNull(Map<String, Object> delNull) {
-        Iterator iterD = delNull.entrySet().iterator();
+        delNull.entrySet().removeIf(ent -> ent.getValue() == null);
+    }
 
-        Object ob;
-        while (iterD.hasNext()) {
-            Entry<String, Object> ent = (Entry) iterD.next();
-            ob = ent.getValue();
-            if (ob == null) {
-                iterD.remove();
-            }
+    private Field[] getNameFields(Class<T> clazz) {
+        Field[] parentFs;
+        Field[] childFs;
+        Field[] fields = null;
+        Class<?> parentClazz = BaseEntity.class;
+        try {
+            parentFs = Class.forName(parentClazz.getName()).getDeclaredFields();
+            childFs = Class.forName(clazz.getName()).getDeclaredFields();
+
+            fields = new Field[parentFs.length + childFs.length];
+            System.arraycopy(parentFs, 0, fields, 0, parentFs.length);
+            System.arraycopy(childFs, 0, fields, parentFs.length, childFs.length);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            log.info(e);
         }
+        return fields;
+    }
 
-        Iterator var5 = delNull.entrySet().iterator();
+    public static Date convertToDate(Object obj) {
+        SimpleDateFormat format = new SimpleDateFormat("EE MMM dd HH:mm:ss z yyyy",
+                Locale.ENGLISH);
+        java.util.Date date = null;
+        try {
+            date = format.parse(String.valueOf(obj));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            log.info(e);
+        }
+        return date;
+    }
 
-        while (var5.hasNext()) {
-            ob = var5.next();
+    public static boolean convertToBoolean(Object obj) {
+        return Boolean.parseBoolean(String.valueOf(obj));
+    }
+
+    private void closeConnect(Statement stmt, ResultSet rs) {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            log.info(e);
         }
     }
 
@@ -302,55 +377,4 @@ public class EntityManager <T extends BaseEntity> {
         }
     }
 
-    private Field[] getNameFields(Class<T> clazz) {
-        Field[] parentFs;
-        Field[] childFs;
-        Field[] fields = null;
-        Class<?> parentClazz = BaseEntity.class;
-        try {
-            parentFs = Class.forName(parentClazz.getName()).getDeclaredFields();
-            childFs = Class.forName(clazz.getName()).getDeclaredFields();
-
-            fields = new Field[parentFs.length + childFs.length];
-            System.arraycopy(parentFs, 0, fields, 0, parentFs.length);
-            System.arraycopy(childFs, 0, fields, parentFs.length, childFs.length);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            log.info(e);
-        }
-        return fields;
-    }
-
-    public static Date convertToDate(Object obj) {
-        SimpleDateFormat format = new SimpleDateFormat("EE MMM dd HH:mm:ss z yyyy",
-                Locale.ENGLISH);
-        java.util.Date date = null;
-        try {
-            date = format.parse(String.valueOf(obj));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            log.info(e);
-        }
-        return date;
-    }
-
-    public static boolean convertToBoolean(Object obj) {
-        boolean bool = Boolean.parseBoolean(String.valueOf(obj));
-        return bool;
-    }
-
-    private void closeConnect(Statement stmt, ResultSet rs) {
-        try {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            log.info(e);
-        }
-    }
 }
