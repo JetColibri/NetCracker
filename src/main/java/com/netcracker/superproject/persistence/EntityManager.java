@@ -81,28 +81,6 @@ public class EntityManager <T extends BaseEntity> {
         return setAllFields(fields, clazz);
     }
 
-    public BigInteger getIdByParam(String param, String value) {
-        BigInteger id = null;
-        PreparedStatement stmt;
-        ResultSet rs;
-
-        try {
-            stmt = conn.prepareStatement("SELECT v.entity_id FROM value v, attribute a " +
-                    "WHERE v.param = a.param AND a.title = ? AND v.value = ? ");
-            stmt.setString(1, param);
-            stmt.setString(2, value);
-            rs = stmt.executeQuery();
-            if (rs.next()) {
-                id = BigInteger.valueOf(rs.getInt(1));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            log.info(e);
-            return id;
-        }
-        return id;
-    }
-
     public void update(BigInteger id, T obj) {
         Map<String, Object> fields = getAllFields(obj);
         obj.setId(null);
@@ -234,6 +212,59 @@ public class EntityManager <T extends BaseEntity> {
         return obj;
     }
 
+    public BigInteger getIdByParam(String param, String value) {
+        BigInteger id = null;
+        PreparedStatement stmt;
+        ResultSet rs;
+
+        try {
+            stmt = conn.prepareStatement("SELECT v.entity_id FROM value v, attribute a " +
+                    "WHERE v.param = a.param AND a.title = ? AND v.value = ? ");
+            stmt.setString(1, param);
+            stmt.setString(2, value);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                id = BigInteger.valueOf(rs.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            log.info(e);
+            return id;
+        }
+        return id;
+    }
+
+/*    public List<T> getObjectsByParam(Map<String, String> param) {
+
+        List<T> objects = new ArrayList<>();
+        ResultSet rs;
+
+        try {
+            rs = conn.prepareStatement("").executeQuery();
+
+            while (rs.next()) {
+                if(tmp != rs.getInt("entity_id")){
+                    if(tmp != -1){
+                        objects.add(setAllFields(entityFields, clazz));
+                    }
+                    tmp = rs.getInt("entity_id");
+                    entityFields.clear();
+                    entityFields.put("0001", BigInteger.valueOf(tmp));
+                }else{
+                    entityFields.put(rs.getString("param"), rs.getString("value"));
+                }
+                if(rs.isLast()){
+                    objects.add(setAllFields(entityFields, clazz));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+
+        return objects;
+    }*/
+
     public List<T> getSomeEntities(Class<T> clazz, int firstEntity, int totalEntities){
         PreparedStatement stmt;
         ResultSet rs;
@@ -340,6 +371,7 @@ public class EntityManager <T extends BaseEntity> {
             conn.prepareStatement("DROP TABLE entity;").execute();
             conn.prepareStatement("DROP TABLE attribute;").execute();
             conn.prepareStatement("DROP TABLE value;").execute();
+            conn.prepareStatement("DROP TABLE reference;").execute();
         } catch (SQLException e) {
             e.printStackTrace();
             log.info(e);

@@ -1,0 +1,22 @@
+body {
+background: url("bg.jpg") no-repeat center center fixed;
+background-color: transparent;
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+background-size: cover;
+}
+
+.panel-body {
+background-color: rgba(255, 255, 255, 0.5);
+}
+
+.menu {
+    position: right;
+}
+
+.menu-button {
+  display: inline-block;
+  float: right;
+  margin: 5px;
+}
