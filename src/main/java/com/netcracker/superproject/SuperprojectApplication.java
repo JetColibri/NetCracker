@@ -1,5 +1,6 @@
 package com.netcracker.superproject;
 
+import com.netcracker.superproject.entity.BaseEntity;
 import com.netcracker.superproject.entity.User;
 import com.netcracker.superproject.persistence.EntityManager;
 import org.springframework.boot.SpringApplication;
@@ -13,7 +14,6 @@ public class SuperprojectApplication {
     public static void main(String[] args) {
 
         EntityManager em = new EntityManager();
-
         SpringApplication.run(SuperprojectApplication.class, args);
 
         //em.dropTables();

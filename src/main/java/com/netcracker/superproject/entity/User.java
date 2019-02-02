@@ -6,6 +6,8 @@ import com.netcracker.superproject.entity.annotations.Reference;
 import lombok.Builder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +57,17 @@ public class User extends BaseEntity implements UserDetails {
 
     @Attribute(type = "1011")
     private String token;
+
+    @Reference(type = "subscribe")
+    private ArrayList<BigInteger> subscribe;
+
+    public ArrayList<BigInteger> getSubscribe() {
+        return subscribe;
+    }
+
+    public void setSubscribe(ArrayList<BigInteger> subscribe) {
+        this.subscribe = subscribe;
+    }
 
     public String getToken() {
         return token;
