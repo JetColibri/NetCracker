@@ -1,17 +1,28 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+<html lang="en-US" xmlns:th="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta charset="UTF-8">
-    <title>Hello</title>
+    <title>Home</title>
 
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
 
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap-theme.min.css" integrity="sha384-jzngWsPS6op3fgRCDTESqrEJwRKck+CILhJVO5VvaAZCq8JYf8HsR/HPpBOOPZfR" crossorigin="anonymous">
+
+    <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
 
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js" integrity="sha384-vhJnz1OVIdLktyixHY4Uk3OHEwdQqPppqYR8+5mjsauETgLOcEynD9oPHhhz18Nw" crossorigin="anonymous"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+
 </head>
 <body ng-app="SpringDemo">
 
@@ -20,40 +31,93 @@
 
   <div class="container-fluid">
     <div class="navbar-header">
-      <a href="#" class="navbar-brand">EventApp</a>
+
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
+        <span class="sr-only">Navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a href="/" class="navbar-brand">EventApp</a>
     </div>
 
-    <div>
+    <div class="collapse navbar-collapse" id="navbar-collapse-1">
       <ul class="nav navbar-nav navbar-right">
-        <li class="active"><a href="hello">Home</a></li>
-        <li><a href="profile.html">Profile</a></li>
-        <li><a href="login.html">Sign out</a></li>
+        <li class="active"><a href="/">Home</a></li>
+        <li><a href="/event/create">Create event</a></li>
+        <li><a href="/profile">Profile</a></li>
+        <li><a href="/login">Sign out</a></li>
       </ul>
     </div>
   </div>
 
 </div>
 <!-- navbar end -->
-<br>
-<br>
+<br><br>
 
 <div class="container-fluid" ng-app="AppCtrl" ng-controller="AppCtrl">
-  <h1> Hello {{ websites.firstName }}</h1>
 
+<br>
 
-<!-- <div class="menu">
-    <div class="menu-button">
-        <form th:action="@{/logout}" method="post">
-            <input type="submit" class="btn btn-default" value="Sign Out"/>
-        </form>
+<!-- search begin -->
+  <div class="col-md-3">
+    <div class="well">
+      <form role="form" class="form-horizontal">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Search</h4>
+            </div>
+        </div>
+
+        <div class="form-group">
+          <input type="title" class="form-control" id="title" placeholder="Title">
+        </div>
+        <div class="form-group">
+          <input type="location" class="form-control" id="location" placeholder="Location">
+        </div>
+        <div class="form-group">
+          <input type="tags" class="form-control" id="tags" placeholder="Tags">
+        </div>
+        <div class="form-group">
+          <div class="input-group" id="datetimepicker1">
+              <input type="text" class="form-control" placeholder="Date" />
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary pull-right" name="button">Search</button>
+        </div>
+      </form>
     </div>
-    <div class="menu-button">
-        <form th:action="@{/profile}" method="post">
-            <input type="submit" class="btn btn-default" value="Profile"/>
-        </form>
+  </div>
+<!-- search end -->
+
+  <div class="col-md-9">
+    <div class="well well-sm">
+    <div class="row">
+          <div class="col-md-9">
+            <a class="h3" href="#">{{ Title }}</a>
+            <h4>{{ Description Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. }}</h4>
+          </div>
+
+          <div class="col-md-3">
+            <h5 class="text-right">
+              {{ Date }}<i class="glyphicon glyphicon-calendar" style="margin: 3px"></i>
+              <br>
+              {{ Location }}<i class="glyphicon glyphicon-map-marker" style="margin: 3px"></i>
+            </h5>
+            <button type="submit" class="btn btn-success pull-right" name="button">Subscribe</button>
+          </div>
     </div>
+    </div>
+  </div>
+
 </div>
--->
-</div>
+
+<script type="text/javascript" src="/js/main.js"></script>
 </body>
 </html>

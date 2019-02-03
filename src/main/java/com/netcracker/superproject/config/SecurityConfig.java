@@ -33,6 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout().permitAll();
 
+        http.formLogin().defaultSuccessUrl("/", true);
+
     }
 
     @Override

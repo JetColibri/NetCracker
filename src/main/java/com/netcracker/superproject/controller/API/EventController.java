@@ -8,23 +8,22 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.math.BigInteger;
 
 @RestController
-@RequestMapping("/event")
+@RequestMapping("/api/event")
 public class EventController {
 
     EntityManager em = new EntityManager();
     EventService service = new EventService();
 
+    // TO DO
     @GetMapping("{id}")
-    public String getEvent(@PathVariable String id){
-        Event event = (Event) em.read(BigInteger.valueOf(Integer.parseInt(id)), Event.class);
+    public String getEvent(@PathVariable String id) {
         Gson gson = new Gson();
-        return gson.toJson(event);
+        return gson.toJson(em.read(new BigInteger(id), Event.class));
     }
 
     @GetMapping("/create")

@@ -39,12 +39,24 @@ public class UserController {
         return gson.toJson(em.read(new BigInteger(id), User.class));
     }
 
-
     @GetMapping("/profile")
     public String getProfile() {
         User activeUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Gson gson = new Gson();
         return gson.toJson(activeUser);
+    }
+
+    @GetMapping("/edit")
+    public String getProfileEdit() {
+        User activeUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Gson gson = new Gson();
+        return gson.toJson(activeUser);
+    }
+
+    @PostMapping("/profile")
+    public String updateProfile(@ModelAttribute("user") @Valid User accountDto) {
+        service.updateProfile(accountDto);
+        return "profile";
     }
 
     @PostMapping("/password")
@@ -65,12 +77,6 @@ public class UserController {
             return "true";
         }
         return "false";
-    }
-
-    @PostMapping("/profile")
-    public String updateProfile(@ModelAttribute("user") @Valid User accountDto) {
-        service.updateProfile(accountDto);
-        return "profile";
     }
 
     @PostMapping("/registration")
