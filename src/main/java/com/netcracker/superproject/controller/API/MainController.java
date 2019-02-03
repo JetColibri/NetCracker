@@ -1,4 +1,4 @@
-package com.netcracker.superproject.controller;
+package com.netcracker.superproject.controller.API;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,5 +9,4 @@ public class MainController {
     public String hello() {
         return "hello";
     }
-
 }

@@ -1,4 +1,4 @@
-package com.netcracker.superproject.controller;
+package com.netcracker.superproject.controller.API;
 
 import com.google.gson.Gson;
 import com.netcracker.superproject.entity.Event;
