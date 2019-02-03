@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:th="http://www.w3.org/1999/xhtml">
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Event</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha384-PmY9l28YgO4JwMKbTvgaS7XNZJ30MK9FAZjjzXtlqyZCqBY6X6bXIkM++IkyinN+" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap-theme.min.css" integrity="sha384-jzngWsPS6op3fgRCDTESqrEJwRKck+CILhJVO5VvaAZCq8JYf8HsR/HPpBOOPZfR" crossorigin="anonymous">
+
+    <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js" integrity="sha384-vhJnz1OVIdLktyixHY4Uk3OHEwdQqPppqYR8+5mjsauETgLOcEynD9oPHhhz18Nw" crossorigin="anonymous"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+</head>
+<body ng-app="SpringDemo">
+
+      <!-- navbar begin -->
+      <div class="navbar navbar-inverse navbar-fixed-top">
+
+        <div class="container-fluid">
+          <div class="navbar-header">
+
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
+              <span class="sr-only">Navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+
+            <a href="/" class="navbar-brand">EventApp</a>
+          </div>
+
+          <div class="collapse navbar-collapse" id="navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+              <li ><a href="/">Home</a></li>
+              <li><a href="/event/create">Create event</a></li>
+              <li><a href="/profile">Profile</a></li>
+              <li><a class="glyphicon glyphicon-wrench" href="/profile/edit"></a></li>
+              <li><a href="/login">Sign out</a></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+      <!-- navbar end -->
+    <br>
+
+    <div class="container-fluid" ng-app="AppCtrl" ng-controller="AppCtrl">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+
+                <div class="panel panel-default" style="margin-top:45px">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Event</h3>
+                    </div>
+                </div>
+
+                <div class="well well-lg">
+                <div class="row">
+                    <div>
+                        <h3>{{ Title }}</h3>
+                      <hr style="height: 12px; border: 0; box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);">
+                        <h4>{{ Description Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. }}</h4>
+                      <hr style="height: 12px; border: 0; box-shadow: inset 0 -12px 12px -12px rgba(0, 0, 0, 0.5);">
+                        <h4>Contacts: {{ Contacts }}</h4>
+                        <h4 class="text-right">
+                        {{ Date }}<i class="glyphicon glyphicon-calendar" style="margin: 3px"></i>
+                        <br>
+                        {{ Location }}<i class="glyphicon glyphicon-map-marker" style="margin: 3px"></i>
+                        </h4>
+                        <button type="submit" class="btn btn-success btn-lg pull-right" name="button">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript" src="../js/event.js"></script>
+</body>
+</html>
