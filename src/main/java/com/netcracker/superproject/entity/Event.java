@@ -3,6 +3,9 @@ package com.netcracker.superproject.entity;
 import com.netcracker.superproject.entity.annotations.Attribute;
 import com.netcracker.superproject.entity.annotations.Entity;
 
+import java.math.BigInteger;
+import java.time.LocalDate;
+
 @Entity(type = "2")
 public class Event extends BaseEntity {
 
@@ -25,7 +28,10 @@ public class Event extends BaseEntity {
     private String photos;
 
     @Attribute(type = "2007")
-    private String date;
+    private LocalDate date;
+
+    @Attribute(type = "2008")
+    private BigInteger organizer;
 
     public Event() {
     }
@@ -78,4 +84,19 @@ public class Event extends BaseEntity {
         this.photos = photos;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public BigInteger getOrganizer() {
+        return organizer;
+    }
+
+    public void setOrganizer(BigInteger organizer) {
+        this.organizer = organizer;
+    }
 }

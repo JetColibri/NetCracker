@@ -1,7 +1,6 @@
 var app = angular.module("SpringDemo", []);
 
 var id = window.location.pathname.split( '/profile/' );
-console.log(id[1]);
 app.controller("AppCtrl", function ($scope, $http) {
 
     $scope.websites = {};
