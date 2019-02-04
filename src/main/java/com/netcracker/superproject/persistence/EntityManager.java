@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.Date;
 import java.sql.*;
@@ -208,7 +209,7 @@ public class EntityManager <T extends BaseEntity> {
             refMap = (Map<String, ArrayList>) allFields.get("reference");
         }
         try {
-            methodMap.put(Date.class, EntityManager.class.getMethod("convertToDate", Object.class));
+            methodMap.put(LocalDate.class, EntityManager.class.getMethod("convertToDate", Object.class));
             methodMap.put(boolean.class, EntityManager.class.getMethod("convertToBoolean", Object.class));
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
@@ -416,17 +417,8 @@ public class EntityManager <T extends BaseEntity> {
         return fields;
     }
 
-    public static Date convertToDate(Object obj) {
-        SimpleDateFormat format = new SimpleDateFormat("EE MMM dd HH:mm:ss z yyyy",
-                Locale.ENGLISH);
-        java.util.Date date = null;
-        try {
-            date = format.parse(String.valueOf(obj));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            log.info(e);
-        }
-        return date;
+    public static LocalDate convertToDate(Object obj) {
+        return LocalDate.parse(String.valueOf(obj));
     }
 
     public static boolean convertToBoolean(Object obj) {

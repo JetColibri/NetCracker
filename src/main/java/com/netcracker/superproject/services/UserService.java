@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -36,7 +37,7 @@ public class UserService implements UserDetailsService {
 
         accountDto.setPassword(new BCryptPasswordEncoder().encode(accountDto.getPassword()));
         accountDto.setRole("0");
-        accountDto.setRegistrationDate(new Date());
+        accountDto.setRegistrationDate(LocalDate.now());
 
         email = accountDto.getEmail();
         accountDto.setEmail("");

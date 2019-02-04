@@ -23,6 +23,7 @@ public class EventController {
     @GetMapping("{id}")
     public String getEvent(@PathVariable String id) {
         Gson gson = new Gson();
+        System.out.println(em.read(new BigInteger(id), Event.class).toString());
         return gson.toJson(em.read(new BigInteger(id), Event.class));
     }
 

@@ -7,6 +7,7 @@ import lombok.Builder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,10 +45,10 @@ public class User extends BaseEntity implements UserDetails {
     private String location;
 
     @Attribute(type = "1007")
-    private Date birthdayDate;
+    private LocalDate birthdayDate;
 
     @Attribute(type = "1008")
-    private Date registrationDate;
+    private LocalDate registrationDate;
 
     @Attribute(type = "1009")
     private String photo;
@@ -141,19 +142,19 @@ public class User extends BaseEntity implements UserDetails {
         this.location = location;
     }
 
-    public Date getBirthdayDate() {
+    public LocalDate getBirthdayDate() {
         return this.birthdayDate;
     }
 
-    public void setBirthdayDate(Date birthdayDate) {
+    public void setBirthdayDate(LocalDate birthdayDate) {
         this.birthdayDate = birthdayDate;
     }
 
-    public Date getRegistrationDate() {
+    public LocalDate getRegistrationDate() {
         return this.registrationDate;
     }
 
-    public void setRegistrationDate(Date registrationDate) {
+    public void setRegistrationDate(LocalDate registrationDate) {
         this.registrationDate = registrationDate;
     }
 
