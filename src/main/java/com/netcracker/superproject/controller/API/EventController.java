@@ -9,7 +9,9 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.math.BigInteger;
 
 @RestController
@@ -23,7 +25,6 @@ public class EventController {
     @GetMapping("{id}")
     public String getEvent(@PathVariable String id) {
         Gson gson = new Gson();
-        System.out.println(em.read(new BigInteger(id), Event.class).toString());
         return gson.toJson(em.read(new BigInteger(id), Event.class));
     }
 
@@ -33,13 +34,20 @@ public class EventController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public BigInteger createEvent(@ModelAttribute("event") @Valid Event event,
-                                            BindingResult result, WebRequest request, Errors errors) {
+    public String createEvent(@ModelAttribute("event") @Valid Event event,
+                       BindingResult result, HttpServletResponse response) {
+        BigInteger id = null;
         if (!result.hasErrors()) {
-            service.createNewEvent(event);
+           id = service.createNewEvent(event);
         }
 
-        return event.getId();
+        try {
+            response.sendRedirect("/event/" + id);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "false";
+        }
+        return "false";
     }
 
 }
