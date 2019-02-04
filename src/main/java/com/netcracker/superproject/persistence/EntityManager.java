@@ -395,7 +395,7 @@ public class EntityManager <T extends BaseEntity> {
     }
 
     private void delNull(Map<String, Object> delNull) {
-        delNull.entrySet().removeIf(ent -> ent.getValue() == null);
+        delNull.entrySet().removeIf(ent -> ((ent.getValue() == null) || (ent.getValue() == "")));
     }
 
     private Field[] getNameFields(Class<T> clazz) {

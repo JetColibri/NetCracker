@@ -3,7 +3,6 @@ package com.netcracker.superproject.entity;
 import com.netcracker.superproject.entity.annotations.Attribute;
 import com.netcracker.superproject.entity.annotations.Entity;
 import com.netcracker.superproject.entity.annotations.Reference;
-import lombok.Builder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigInteger;
