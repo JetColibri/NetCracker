@@ -211,6 +211,7 @@ public class EntityManager <T extends BaseEntity> {
         try {
             methodMap.put(LocalDate.class, EntityManager.class.getMethod("convertToDate", Object.class));
             methodMap.put(boolean.class, EntityManager.class.getMethod("convertToBoolean", Object.class));
+            methodMap.put(BigInteger.class, EntityManager.class.getMethod("convertToBigInteger", Object.class));
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
             log.info(e);
@@ -423,6 +424,10 @@ public class EntityManager <T extends BaseEntity> {
 
     public static boolean convertToBoolean(Object obj) {
         return Boolean.parseBoolean(String.valueOf(obj));
+    }
+
+    public static BigInteger convertToBigInteger(Object obj){
+        return new BigInteger((String) obj);
     }
 
     private void closeConnect(Statement stmt, ResultSet rs) {
