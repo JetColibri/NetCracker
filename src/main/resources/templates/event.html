@@ -65,15 +65,17 @@
                 <div class="well well-lg">
                 <div class="row">
                     <div>
-                        <h3>{{ Title }}</h3>
+                        <h3>{{ websites.title }}</h3>
                       <hr style="height: 12px; border: 0; box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);">
-                        <h4>{{ Description Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. }}</h4>
+                        <h4>{{ websites.description }}</h4>
                       <hr style="height: 12px; border: 0; box-shadow: inset 0 -12px 12px -12px rgba(0, 0, 0, 0.5);">
-                        <h4>Contacts: {{ Contacts }}</h4>
+                        <h4>Contacts: {{ websites.contacts }}</h4>
+                        <h4>{{ websites.organizer }}</h4>
+                        <h4>{{ websites.tags }}</h4>
                         <h4 class="text-right">
-                        {{ Date }}<i class="glyphicon glyphicon-calendar" style="margin: 3px"></i>
+                        {{ websites.date }}<i class="glyphicon glyphicon-calendar" style="margin: 3px"></i>
                         <br>
-                        {{ Location }}<i class="glyphicon glyphicon-map-marker" style="margin: 3px"></i>
+                        {{ websites.location }}<i class="glyphicon glyphicon-map-marker" style="margin: 3px"></i>
                         </h4>
                         <button type="submit" class="btn btn-success btn-lg pull-right" name="button">Subscribe</button>
                     </div>

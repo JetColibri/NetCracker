@@ -427,7 +427,7 @@ public class EntityManager <T extends BaseEntity> {
     }
 
     public static BigInteger convertToBigInteger(Object obj){
-        return new BigInteger((String) obj);
+        return new BigInteger(String.valueOf(obj));
     }
 
     private void closeConnect(Statement stmt, ResultSet rs) {
