@@ -22,7 +22,7 @@ public class EventController {
     EventService service = new EventService();
 
     // TO DO
-    @GetMapping("{id}")
+    @GetMapping("/get/{id}")
     public String getEvent(@PathVariable String id) {
         Gson gson = new Gson();
         return gson.toJson(em.read(new BigInteger(id), Event.class));
@@ -33,6 +33,18 @@ public class EventController {
         return "createEvent";
     }
 
+    @PostMapping("/add/{id}")
+    public String add (@PathVariable BigInteger id){
+       return service.addReference(id);
+    }
+
+    @GetMapping("/search")
+    public String search(@RequestParam(value = "location", required = false) String location,
+                         @RequestParam(value = "date", required = false) String date,
+                         @RequestParam(value = "sponsor", required = false) String sponsor){
+
+        return service.search(location, date, sponsor);
+    }
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public String createEvent(@ModelAttribute("event") @Valid Event event,
                        BindingResult result, HttpServletResponse response) {

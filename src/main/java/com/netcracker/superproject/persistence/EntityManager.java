@@ -287,24 +287,28 @@ public class EntityManager <T extends BaseEntity> {
         ResultSet rs;
         int i = 0;
 
-        StringBuilder sql = new StringBuilder("WITH entities AS (SELECT entity_id FROM value WHERE" );
+        StringBuilder sql = new StringBuilder("WITH entities AS (SELECT entity_id FROM value WHERE " );
         for (Map.Entry<String, String> param : map.entrySet()){
             if(i != 0){
-                sql.append("AND");
+                sql.append("AND ");
             }
             sql.append("entity_id IN (SELECT entity_id FROM value WHERE param = ");
+            sql.append("'");
             sql.append(param.getKey());
-            sql.append("AND value = ");
+            sql.append("'");
+            sql.append(" AND value = ");
+            sql.append("'");
             sql.append(param.getValue());
+            sql.append("'");
             sql.append(")");
             i++;
         }
-        sql.append("AND entity_id > ");
+        sql.append(" AND entity_id > ");
         sql.append(firstEntity);
-        sql.append("GROUP BY entity_id ORDER BY entity_id LIMIT ");
+        sql.append(" GROUP BY entity_id ORDER BY entity_id LIMIT ");
         sql.append(totalEntities);
-        sql.append("SELECT v.entity_id, v.param, v.value\n" +
-                "FROM value AS v JOIN entities ON entities.entity_id = v.entity_id;");
+        sql.append(") SELECT v.entity_id, v.param, v.value\n" +
+                " FROM value AS v JOIN entities ON entities.entity_id = v.entity_id;");
 
         try {
             stmt = conn.prepareStatement(String.valueOf(sql));
@@ -323,8 +327,8 @@ public class EntityManager <T extends BaseEntity> {
 
    try {
        while (rs.next()) {
-           if (String.valueOf(tmp).equals(rs.getString("entity_id"))) {
-               if (tmp != "") {
+           if (!tmp.equals(rs.getString("entity_id"))) {
+               if (!tmp.equals("")) {
                    objects.add(setAllFields(entityFields, clazz));
                }
                tmp = rs.getString("entity_id");
@@ -372,7 +376,7 @@ public class EntityManager <T extends BaseEntity> {
         return references;
     }
 
-    public void addReference(String title, BigInteger parent_id, BigInteger entity_id){
+    public String addReference(String title, BigInteger parent_id, BigInteger entity_id){
         
         try {
             System.out.println("+");
@@ -383,7 +387,9 @@ public class EntityManager <T extends BaseEntity> {
             stmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
+            return "false";
         }
+        return "true";
     }
 
     private String firstUpperCase(String word) {
