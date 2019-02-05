@@ -1,10 +1,12 @@
 package com.netcracker.superproject.persistence;
 
 import com.netcracker.superproject.entity.BaseEntity;
+import com.netcracker.superproject.entity.User;
 import com.netcracker.superproject.entity.annotations.Attribute;
 import com.netcracker.superproject.entity.annotations.Entity;
 import com.netcracker.superproject.entity.annotations.Reference;
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -88,28 +90,6 @@ public class EntityManager <T extends BaseEntity> {
         return setAllFields(fields, clazz);
     }
 
-    public BigInteger getIdByParam(String param, String value) {
-        BigInteger id = null;
-        PreparedStatement stmt;
-        ResultSet rs;
-
-        try {
-            stmt = conn.prepareStatement("SELECT v.entity_id FROM value v, attribute a " +
-                    "WHERE v.param = a.param AND a.title = ? AND v.value = ? ");
-            stmt.setString(1, param);
-            stmt.setString(2, value);
-            rs = stmt.executeQuery();
-            if (rs.next()) {
-                id = BigInteger.valueOf(rs.getInt(1));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            log.info(e);
-            return id;
-        }
-        return id;
-    }
-
     public void update(BigInteger id, T obj) {
         Map<String, Object> fields = getAllFields(obj);
         obj.setId(null);
@@ -137,20 +117,36 @@ public class EntityManager <T extends BaseEntity> {
     }
 
     public void delete(BigInteger id) {
-        PreparedStatement stmt = null;
         try {
-            stmt = conn.prepareStatement("DELETE FROM entity WHERE id = ?");
-            stmt.execute();
-            stmt = conn.prepareStatement("DELETE FROM value WHERE entity_id = ?");
-            stmt.execute();
-            stmt = conn.prepareStatement("DELETE FROM reference WHERE parent_id = ?");
-            stmt.execute();
+            conn.prepareStatement("DELETE FROM entity WHERE id = ?").execute();
+            conn.prepareStatement("DELETE FROM value WHERE entity_id = ?").execute();
+            conn.prepareStatement("DELETE FROM reference WHERE parent_id = ?").execute();
         } catch (SQLException e) {
             e.printStackTrace();
             log.info(e);
-        } finally {
-            closeConnect(stmt, null);
         }
+    }
+
+    public BigInteger getIdByParam(String param, String value) {
+        BigInteger id = null;
+        PreparedStatement stmt;
+        ResultSet rs;
+
+        try {
+            stmt = conn.prepareStatement("SELECT v.entity_id FROM value v, attribute a " +
+                    "WHERE v.param = a.param AND a.title = ? AND v.value = ? ");
+            stmt.setString(1, param);
+            stmt.setString(2, value);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                id = BigInteger.valueOf(rs.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            log.info(e);
+            return id;
+        }
+        return id;
     }
 
     private String objectType(T obj) {
@@ -388,9 +384,8 @@ public class EntityManager <T extends BaseEntity> {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-
     }
+
     private String firstUpperCase(String word) {
         return word != null && !word.isEmpty() ? word.substring(0, 1).toUpperCase() + word.substring(1) : "";
     }
@@ -439,6 +434,17 @@ public class EntityManager <T extends BaseEntity> {
                 stmt.close();
             }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+            log.info(e);
+        }
+    }
+
+    public void subscribe(BigInteger eventId) {
+        User activeUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        BigInteger userId = activeUser.getId();
+        try {
+            conn.prepareStatement("INSERT INTO reference (title, parent_id, entity_id) VALUES ('subscribe','"+ userId +"','"+ eventId +"')").execute();
         } catch (SQLException e) {
             e.printStackTrace();
             log.info(e);
