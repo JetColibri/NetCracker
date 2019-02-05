@@ -21,7 +21,6 @@ public class EventController {
     EntityManager em = new EntityManager();
     EventService service = new EventService();
 
-    // TO DO
     @GetMapping("/get/{id}")
     public String getEvent(@PathVariable String id) {
         Gson gson = new Gson();

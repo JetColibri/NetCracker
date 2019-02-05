@@ -12,9 +12,9 @@ public class Connect {
 
     private Connect() {
         try {
-            String url = "jdbc:postgresql://localhost:5432/postgres";
+            String url = "jdbc:postgresql://localhost:5432/project";
             String user = "postgres";
-            String password = "postgres";
+            String password = "epifanik";
             conn = DriverManager.getConnection(url, user, password);
         } catch (SQLException sqlEx) {
             sqlEx.printStackTrace();
