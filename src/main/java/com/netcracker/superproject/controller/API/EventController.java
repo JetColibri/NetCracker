@@ -5,9 +5,7 @@ import com.netcracker.superproject.entity.Event;
 import com.netcracker.superproject.persistence.EntityManager;
 import com.netcracker.superproject.services.EventService;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
